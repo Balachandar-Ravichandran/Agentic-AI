@@ -1,0 +1,7 @@
+{
+    "dependencies":["."],
+  "graphs":{
+    "XAI_graph":"./LangSmith_TopNewsBlogGenerator.py:graph"
+  },
+  "env":"../.env"
+}
