@@ -1,2 +1,2 @@
-#  Agentic AI & Gen AI related practice  
+#  Agentic AI & Gen AI Project Repository  
 
