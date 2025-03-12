@@ -16,3 +16,4 @@ langgraph
 langgraph-cli[inmem]
 langchain-xai
 langchainhub
+streamlit
