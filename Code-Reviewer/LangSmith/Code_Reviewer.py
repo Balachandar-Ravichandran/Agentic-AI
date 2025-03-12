@@ -63,6 +63,7 @@ class State(TypedDict, total=False):
     feedback_Collector: str
     final_summary: str
 
+@traceable
 def get_user_input(state: State):
     state["objective"] = input("Please enter the Objective of the code to be reviewed: ")
     user_instructions  = input("What types of code reviews do you want the agent to perform? (comma-separated) - (e.g., Syntax, Formatting, Code Quality, Security, Optimization, Best Practices & Design Pattern, etc.): ")
@@ -71,7 +72,7 @@ def get_user_input(state: State):
     print(user_instructions)
     return state
 
-
+@traceable
 def validate_objective(state: State):
     response = llm.invoke(
         f"Verify if code objective matches implementation:\n"
@@ -82,13 +83,13 @@ def validate_objective(state: State):
     print(state["objective_check"])
     return state
 
-
+@traceable
 def route_based_on_validation(state: State):
     print(state["objective_check"])
     return "accepted" if state["objective_check"] else "rejected"
 
 
-
+@traceable
 def master_planner(state: State):
     """Orchestrator that generates a plan for the reviews to be performed by the agents."""
     # Generate queries
@@ -108,7 +109,7 @@ def master_planner(state: State):
 class WorkerState(TypedDict):
     agenttask: AgentTask
     feedback_Generator: Annotated[list, operator.add]
-
+@traceable
 def execute_agent_review_task(state: State):
     """Execute all review tasks and store feedback with agent identifiers"""
     agent_feedback = []
@@ -124,7 +125,7 @@ Code:\n{state['code']}""")
         })
     return {"feedback_Generator": agent_feedback}
 
-
+@traceable
 def synthesize_feedback(state: State):
     """Structure feedback with clear agent attribution"""
     formatted_feedback = []
@@ -137,7 +138,7 @@ def synthesize_feedback(state: State):
     state["feedback_Collector"] = "\n\n".join(formatted_feedback)
     return state
 
-
+@traceable
 def generate_summary(state: State):
     """Generate both agent-specific and general summary"""
     if not state["objective_check"]:
@@ -168,7 +169,7 @@ def generate_summary(state: State):
     return state
 
 # Graph construction
-
+@traceable
 def default_graph():
     workflow = StateGraph(State)
 

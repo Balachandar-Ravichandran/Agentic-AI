@@ -36,7 +36,7 @@ with st.form("code_review_form"):
     col1, col2 = st.columns(2)
     with col1:
         objective = st.text_area("Code Objective", height=100)
-        review_types = st.text_input("Review Types (comma-separated)")
+        review_types = st.text_input("What types of code reviews do you want the agent to perform? (comma-separated) - (e.g., Syntax, Formatting, Code Quality, Security, Optimization, Best Practices & Design Pattern, etc.)")
     with col2:
         code = st.text_area("Paste Your Code", height=300)
     submitted = st.form_submit_button("🚀 Start Review")
