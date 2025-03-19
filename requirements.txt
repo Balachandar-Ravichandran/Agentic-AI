@@ -22,3 +22,5 @@ google-api-python-client
 youtube_transcript_api
 google-generativeai
 faiss-cpu
+sentence-transformers
+
