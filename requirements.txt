@@ -17,3 +17,8 @@ langgraph-cli[inmem]
 langchain-xai
 langchainhub
 streamlit
+youtube_transcript_api
+google-api-python-client
+youtube_transcript_api
+google-generativeai
+faiss-cpu
