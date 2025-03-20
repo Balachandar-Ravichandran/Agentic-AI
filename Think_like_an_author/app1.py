@@ -11,20 +11,21 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
 from langchain_groq import ChatGroq
 from langchain_core.documents import Document
-from sentence_transformers import SentenceTransformer
-from langchain_huggingface.embeddings import HuggingFaceInferenceAPIEmbeddings
+# from sentence_transformers import SentenceTransformer
+# from langchain_huggingface import HuggingFaceEmbeddings
 
 # Load environment variables
 load_dotenv()
 
 # Initialize APIs
 youtube = build('youtube', 'v3', developerKey=os.getenv("YOUTUBE_API_KEY"))
-#embedder = OpenAIEmbeddings(model="text-embedding-3-small")
-embedder = HuggingFaceInferenceAPIEmbeddings(
-    api_key=os.getenv("HF_API_KEY"),  # Add to .env as HF_API_KEY=your_token
-    model_name="sentence-transformers/all-MiniLM-L6-v2"  # Free tier default
-)
-
+embedder = OpenAIEmbeddings(model="text-embedding-3-small")
+# embedder = HuggingFaceEmbeddings(
+#     api_key=os.getenv("HF_TOKEN"),  # Add to .env as HF_API_KEY=your_token
+#     model_name="sentence-transformers/all-MiniLM-L6-v2"  # Free tier default
+# )
+#model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+#embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2",)
 llm = ChatGroq(
     model_name="mixtral-8x7b-32768",
     temperature=0.7,
