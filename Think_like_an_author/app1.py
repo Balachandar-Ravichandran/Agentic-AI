@@ -27,7 +27,7 @@ llm = ChatGroq(
 
 # ---- UI Setup ----
 st.markdown(
-    "<h1 style='text-align: center; font-size: 40px; font-weight: bold;'>Author Perspective AI</h1>",
+    "<h1 style='text-align: center; font-size: 40px; font-weight: bold;'>AuthorMind AI - Think Like an Author</h1>",
     unsafe_allow_html=True
 )
 
