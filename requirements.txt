@@ -23,4 +23,6 @@ youtube_transcript_api
 google-generativeai
 faiss-cpu
 sentence-transformers
+duckduckgo-search
+langchain-tavily
 
