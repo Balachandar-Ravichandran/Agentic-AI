@@ -25,4 +25,6 @@ faiss-cpu
 sentence-transformers
 duckduckgo-search
 langchain-tavily
+gspread 
+oauth2client
 
