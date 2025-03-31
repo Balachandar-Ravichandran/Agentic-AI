@@ -1,13 +1,13 @@
 # streamlit_app.py
 import streamlit as st
-from workflow import AuthorWorkflow, run_conversation
+from workflow import AuthorWorkflow, State
 import time
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
 # Initialize session state
-if 'conversation' not in st.session_state:
-    st.session_state.conversation = None
+if 'workflow' not in st.session_state:
+    st.session_state.workflow = AuthorWorkflow()
 if 'chat_history' not in st.session_state:
     st.session_state.chat_history = []
 
@@ -23,88 +23,103 @@ def connect_to_sheet():
 st.set_page_config(layout="wide", page_title="AuthorMind AI", page_icon="📚")
 
 # Title Section
-col1, col2 = st.columns([3, 1])
-with col1:
-    st.title("AuthorMind AI")
-    st.markdown("### Think Like Your Favorite Author")
+st.title("📚 Author's Mind AI")
+st.markdown("### Talk to Your Favorite Author")
 
-# Main Content
+
+# Main columns
 main_col, side_col = st.columns([3, 1])
 
 with main_col:
-    # Chat Container
-    chat_container = st.container(height=600, border=False)
+    # Chat container
+    chat_container = st.container(height=600)
     
-    # Display Chat History
+    # Display chat history
     for q, a in st.session_state.chat_history:
         with chat_container.chat_message("user"):
             st.write(q)
-        with chat_container.chat_message("assistant"):
+        with chat_container.chat_message("assistant", avatar="📘"):
             st.write(a)
     
-    # Input Section
-    with st.container():
-        topic = st.text_input("Enter Topic", key="topic_input")
-        author = st.text_input("Enter Author Name", key="author_input")
-        user_input = st.chat_input("Ask your question...")
+    # Input form
+    with st.form("main_input"):
+        topic = st.text_input("Topic of interest")
+        author = st.text_input("Author to emulate")
+        question = st.text_input("Your question")
+        
+        submitted = st.form_submit_button("Ask Author's Mind")
 
 with side_col:
-    # About Section
-    with st.expander("About the Project", expanded=True):
+    # About section
+    with st.expander("**About Author's Mind AI**", expanded=True):
         st.markdown("""
-        AuthorMind AI helps you think like your favorite authors by:
-        - Analyzing their YouTube interviews & recent articles
-        - Mimicking their communication style
-        - Providing insights in their voice
-            
-        Example: Ask about "Wealth Building" from Robert Kiyosaki's perspective
-        """)
-    
-    # Features Section
-    with st.expander("Technical Features"):
-        st.markdown("""
-        - LLM: GPT-3.5 Turbo
-        - Vector DB: FAISS
-        - Embeddings: OpenAI text-embedding-3-small
-        - Search: YouTube API + DuckDuckGo
-        - Chat History: Last 5 exchanges
-        """)
-    
-    # Feedback Section
-    with st.form("feedback_form"):
-        feedback = st.radio("Rate this response", ["👍 Like", "👎 Dislike"])
-        comment = st.text_area("Additional comments")
-        submitted = st.form_submit_button("Submit Feedback")
+        Ever finished a book or podcast bursting with questions the author never addressed? 
+        AuthorMind AI lets you converse directly with an author's digital clone! 
         
-        if submitted:
+        Imagine asking **Robert Kiyosaki**:  
+        *"Is a luxury painting a true asset in this economy?"*  
+        *"Would you buy a house today as an investment?"*  
+        
+        Author's Mind AI analyzes recent author’s interviews, books, and articles to deliver responses in their signature style—combining 
+        their historical wisdom with real-time data. Get nuanced answers to your niche scenarios, 
+        as if the author crafted a personalized chapter just for your situation.               
+                         
+        **Author's Mind AI** thinking patterns using:         
+        - YouTube interviews/lectures
+        - Recent articles/interviews from DuckDuckGoSearch
+        """)
+    
+    # Features section
+    with st.expander("**Technical Features**"):
+        st.markdown("""
+        - **LLM**: GPT-3.5 Turbo
+        - **Embedding**:text-embedding-3-small
+        - **Vector DB**: FAISS
+        - **Search**: YouTube + DuckDuckGo
+        - **Memory**: Last 5 exchanges
+        """)
+    
+    # Feedback section
+    with st.form("feedback"):
+        feedback = st.radio("Rate response", ["👍", "👎"])
+        comment = st.text_area("Comments")
+        if st.form_submit_button("Submit Feedback"):
             sheet = connect_to_sheet()
             sheet.append_row([
                 time.strftime("%Y-%m-%d %H:%M:%S"),
-                st.session_state.get('current_topic', ''),
-                st.session_state.get('current_author', ''),
+                topic,
+                author,
                 feedback,
                 comment
             ])
-            st.success("Thanks for your feedback!")
+            st.success("Feedback recorded!")
 
-# Conversation Handling
-if user_input and topic and author:
-    # Initialize workflow
-    if not st.session_state.conversation:
-        st.session_state.conversation = AuthorWorkflow()
-        st.session_state.current_topic = topic
-        st.session_state.current_author = author
+ # Attribution with LinkedIn link
+    st.markdown("""
+    <div style='text-align: right; margin-top: 20px;'>
+        Created by <a href="https://www.linkedin.com/in/balachandar-ravichandran-0918211b/">Balachandar Ravichandran</a>
+    </div>
+    """, unsafe_allow_html=True)
+
+# Process questions
+if submitted and topic and author and question:
+    # Create initial state
+    state = {
+        "topic": topic,
+        "author": author,
+        "question": question,
+        "chat_history": st.session_state.chat_history,
+        "objective_check": False,
+        "response_summary": "",
+        "validate_response": "",
+        "fact_correction": "",
+        "generate_final_response": ""
+    }
     
-    # Run conversation
-    with st.spinner(f"Thinking like {author}..."):
-        response = run_conversation(
-            workflow=st.session_state.conversation,
-            user_input=user_input,
-            topic=topic,
-            author=author,
-            chat_history=st.session_state.chat_history
-        )
-        
+    # Process through workflow
+    with st.spinner(f"🧠 Analyzing {author}'s perspective..."):
+        processed_state = st.session_state.workflow.process(state)
+    
     # Update chat history
-    st.session_state.chat_history.append((user_input, response))
+    st.session_state.chat_history = processed_state["chat_history"]
     st.rerun()
