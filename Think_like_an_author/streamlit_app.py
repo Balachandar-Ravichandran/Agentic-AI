@@ -72,7 +72,7 @@ with side_col:
     # Features section
     with st.expander("**Technical Features**"):
         st.markdown("""
-        - **LLM**: GPT-3.5 Turbo
+        - **LLM**: mistral-saba-24b
         - **Embedding**:text-embedding-3-small
         - **Vector DB**: FAISS
         - **Search**: YouTube + DuckDuckGo

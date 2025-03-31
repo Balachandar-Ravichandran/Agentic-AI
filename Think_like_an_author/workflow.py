@@ -13,12 +13,20 @@ from langchain_core.output_parsers import StrOutputParser
 from langgraph.graph import START, StateGraph,END
 from datetime import datetime
 from langgraph.graph import StateGraph
+from langchain_groq import ChatGroq
 import os
 import re
 
 # Initialize APIs
 embedder = OpenAIEmbeddings(model="text-embedding-3-small")
-llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0.7)
+#llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0.7)
+
+llm = ChatGroq(
+    model_name="mistral-saba-24b",
+    temperature=0.7,
+    groq_api_key=os.getenv("GROQ_API_KEY")
+)
+
 youtube = build('youtube', 'v3', developerKey=os.getenv("YOUTUBE_API_KEY"))
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
 
@@ -181,7 +189,11 @@ class AuthorWorkflow:
         
         print(f"\n=== Validating user request {state['question']} and {state['topic']} ===")
         
-        validator_llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0.1)
+        #validator_llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0.1)
+        validator_llm = ChatGroq(
+                model_name="mistral-saba-24b",
+                temperature=0.7,
+                groq_api_key=os.getenv("GROQ_API_KEY"))
 
         validation_prompt = f"""**Conversation Context Validation Task**
 
