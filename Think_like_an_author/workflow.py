@@ -179,7 +179,7 @@ class AuthorWorkflow:
         if not state.get("question", "").strip():
             return {**state, "objective_check": False}
         
-        print(f"\n=== Validating user request {state['question']} ===")
+        print(f"\n=== Validating user request {state['question']} and {state['topic']} ===")
         
         validator_llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0.1)
 
@@ -231,11 +231,12 @@ class AuthorWorkflow:
         
         response = validator_llm.invoke(validation_prompt).content.strip().lower()
         is_valid = "true" in response
+        print(is_valid)
         return {**state, "objective_check":is_valid}
 
     def validate_facts(self, state: State) -> State:
         
-        print(f"\n=== Validating response for '{state['question']}' ===")
+        print(f"\n=== Validating facts for '{state['question']}' ===")
 
         feedback_prompt = f"""**Validation Task: Summary Quality Check**
 
@@ -302,38 +303,37 @@ class AuthorWorkflow:
                 context_sources += f"\n\n[External Verification]\n{external_data}"
 
             # Create dynamic prompt with history
-            prompt = f"""**Role**: You are {state['author']}, responding in their distinct style to analyze "{state['topic']}".  
+            prompt = f"""**Role**: You are {state['author']}, responding in their distinct voice to address "{state['topic']}".
 
-                **Objective**: Answer as if {state['author']} is speaking directly to the reader, offering insights in their unique tone and perspective.  
+            **Objective**: Speak as if {state['author']} is having a personal conversation, using their authentic tone and mannerisms.
 
-                **Previous Discussion**:  
-                {history_str}  
+            **Context**:
+            - Previous discussion: {history_str}
+            - Current question: "{state['question']}"
+            - Reference materials: {context_sources}
 
-                **Question**:  
-                "{state['question']}"  
-
-                **Reference Materials**:  
-                {context_sources}  
-
-                **Response Guidelines**:  
-                1. **Opening Line**: Begin with—*"As {state['author']} would say..."*  
-                2. **Maintain Authenticity**:  
-                - Use {state['author']}'s signature style—be it philosophical, analytical, or storytelling-based.  
-                - Keep the tone conversational yet authoritative.  
-                3. **Provide Depth & Clarity**:  
-                - Share a **core idea or principle** relevant to the topic.  
-                - Use **1-2 examples** (historical, literary, or real-world) to support the argument.  
-                - If necessary, acknowledge gaps in knowledge or areas requiring further exploration.  
-                4. **Response Structure**:  
-                - **Key Idea** – The central argument or viewpoint.  
-                - **Supporting Insights** – Relevant examples or explanations.  
-                - **Common Misunderstandings** – Address misconceptions.  
-                - **Practical Takeaway** – A concluding thought or advice for the reader.  
-                5. **Relevance**:  
-                - {"Include recent references if applicable" if external_data else "Keep the focus on timeless wisdom"}  
-                - Naturally link to past discussion points when relevant.  
-                6. **Concise & Engaging**: Stay under **500 words**, ensuring clarity and engagement.  
-                """
+            **Response Style Rules**:
+            1. *Natural Openings**: Begin conversationally without formulaic phrases. Examples:
+                - *"This brings to mind an important principle..."*  
+                - *"Consider how this relates to..."*  
+                - *"There's an interesting parallel here..."*  
+                (Vary based on context - no required starter phrases)
+            2. **Authentic Voice**: Maintain {state['author']}'s signature:
+                - Communication style (storytelling/analytical/philosophical)  
+                - Characteristic tone and cadence  
+                - Core beliefs and values 
+            3. **Organic Flow**:
+                - Start with what feels most natural to the conversation  
+                - Support arguments with relevant examples (current/historical/personal)  
+                - Address potential misunderstandings through dialogue  
+                - Conclude with actionable wisdom 
+            4. Modern context: {f"Weave in recent developments" if external_data else "Focus on timeless principles"}
+            5. Keep it human:
+            - Vary sentence structure like spontaneous speech
+            - Use rhetorical questions when appropriate
+            - Allow natural transitions between ideas
+            - Limit to 3-4 concise paragraphs (under 400 words)
+            """
             
             # Generate and store final response
             state["generate_final_response"] = llm.invoke(prompt).content
