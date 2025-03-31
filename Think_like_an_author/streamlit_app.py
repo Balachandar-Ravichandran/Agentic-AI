@@ -47,7 +47,7 @@ with main_col:
         author = st.text_input("Author to emulate")
         question = st.text_input("Your question")
         
-        submitted = st.form_submit_button("Ask Author's Perspective")
+        submitted = st.form_submit_button("Know Author's Perspective")
 
 with side_col:
     # About section
