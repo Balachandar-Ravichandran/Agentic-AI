@@ -11,6 +11,10 @@ if 'workflow' not in st.session_state:
     st.session_state.workflow = AuthorWorkflow()
 if 'chat_history' not in st.session_state:
     st.session_state.chat_history = []
+if 'current_topic' not in st.session_state:  # Add these
+    st.session_state.current_topic = ""
+if 'current_author' not in st.session_state:
+    st.session_state.current_author = ""
 
 SPREADSHEET_ID = st.secrets["SPREADSHEET_ID"]
 
@@ -35,6 +39,13 @@ with col1:
     topic = st.text_input("Topic of interest", placeholder="e.g. Real estate investing, Personal finance, Leadership",key="topic_input")
 with col2:
     author = st.text_input("Author to emulate",placeholder="e.g. Robert Kiyosaki, Brené Brown, Malcolm Gladwell", key="author_input")
+
+# Reset chat history when topic/author changes  # Add this block
+if (topic != st.session_state.current_topic) or (author != st.session_state.current_author):
+    st.session_state.chat_history = []
+    st.session_state.current_topic = topic
+    st.session_state.current_author = author
+    st.rerun()
 
 # Main columns
 main_col, side_col = st.columns([3, 1])
