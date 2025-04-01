@@ -69,38 +69,59 @@ with main_col:
     # Add processing spinner right below the form
     if submitted and st.session_state.topic_input and st.session_state.author_input and st.session_state.question_input:
         
-        try:
+        try:           
+              
+        
+        # Process through workflow - now directly below the button
+            with st.spinner(f"🧠 Analyzing {author}'s perspective..."):
+
+                state = {
+                "topic": topic,
+                "author": author,
+                "question": question,
+                "chat_history": st.session_state.chat_history,
+                "objective_check": False,
+                "response_summary": "",
+                "validate_response": "",
+                "fact_correction": "",
+                "generate_final_response": ""
+            }
+                
+                processed_state = st.session_state.workflow.process(state)
+                response = processed_state.get("generate_final_response", "No response generated")
+            
+            # Update chat history
+            st.session_state.chat_history = processed_state["chat_history"]
+
+            # Create initial state
+
             sheet = connect_to_sheet()
             sheet.append_row([
                 time.strftime("%Y-%m-%d %H:%M:%S"),
                 topic,
                 author,
                 question,
+                response, 
                 "NO_FEEDBACK",  # Default value
                 "NO_COMMENT"   # Default value
             ])
         except Exception as e:
-            st.error(f"Error logging question: {str(e)}")
+            error_response = f"Error processing request: {str(e)}"
+            st.error(error_response)
+            sheet = connect_to_sheet()
+            sheet.append_row([
+                time.strftime("%Y-%m-%d %H:%M:%S"),
+                st.session_state.topic_input,
+                st.session_state.author_input,
+                st.session_state.question_input,
+                error_response,
+                "NO_FEEDBACK",
+                "NO_COMMENT"
+            ])
 
-        # Create initial state
-        state = {
-            "topic": topic,
-            "author": author,
-            "question": question,
-            "chat_history": st.session_state.chat_history,
-            "objective_check": False,
-            "response_summary": "",
-            "validate_response": "",
-            "fact_correction": "",
-            "generate_final_response": ""
-        }
-        
-        # Process through workflow - now directly below the button
-        with st.spinner(f"🧠 Analyzing {author}'s perspective..."):
-            processed_state = st.session_state.workflow.process(state)
-        
-        # Update chat history
-        st.session_state.chat_history = processed_state["chat_history"]
+
+
+
         st.rerun()
 
 
@@ -146,6 +167,7 @@ with side_col:
                 topic,
                 author,
                 question,
+                 "Fill_Response",
                 feedback,
                 comment
             ])
