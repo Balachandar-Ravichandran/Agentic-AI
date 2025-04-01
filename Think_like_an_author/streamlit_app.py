@@ -56,7 +56,7 @@ with main_col:
         submitted = st.form_submit_button("Ask Author's Mind")
     
     # Add processing spinner right below the form
-    if submitted and topic and author and question:
+    if submitted and st.session_state.topic_input and st.session_state.author_input and st.session_state.question_input:
         
         try:
             sheet = connect_to_sheet()
