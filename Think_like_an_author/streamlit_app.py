@@ -127,7 +127,7 @@ with side_col:
     # Features section
     with st.expander("**Technical Details**"):
         st.markdown("""
-        -**LLM**: mistral-saba-24b
+        - **LLM**: mistral-saba-24b
         - **Embedding**:text-embedding-3-small
         - **Vector DB**: FAISS
         - **Search**: YouTube + DuckDuckGo
