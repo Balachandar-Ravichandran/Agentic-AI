@@ -57,6 +57,20 @@ with main_col:
     
     # Add processing spinner right below the form
     if submitted and topic and author and question:
+        
+        try:
+            sheet = connect_to_sheet()
+            sheet.append_row([
+                time.strftime("%Y-%m-%d %H:%M:%S"),
+                topic,
+                author,
+                question,
+                "NO_FEEDBACK",  # Default value
+                "NO_COMMENT"   # Default value
+            ])
+        except Exception as e:
+            st.error(f"Error logging question: {str(e)}")
+
         # Create initial state
         state = {
             "topic": topic,
